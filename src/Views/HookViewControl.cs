@@ -197,6 +197,11 @@ namespace Oxide.Patcher.Views
 
             _msilHighlight = new HighlightGroup(_msilAfter);
 
+            AddHighlight(afterText);
+        }
+
+        private void AddHighlight(string afterText)
+        {
             int searchIndex = afterText.IndexOf($"\"{Hook.HookName}\"");
             if (searchIndex == -1)
             {
@@ -334,8 +339,13 @@ namespace Oxide.Patcher.Views
                 _codeBefore.Text = await Decompiler.GetSourceCode(_methodDef, weaver);
 
                 Hook.ApplyPatch(_methodDef, weaver);
-                _msilAfter.Text = weaver.ToString();
+
+                string afterText = weaver.ToString();
+
+                _msilAfter.Text = afterText;
                 _codeAfter.Text = await Decompiler.GetSourceCode(_methodDef, weaver);
+
+                AddHighlight(afterText);
             }
 
             applybutton.Enabled = false;
