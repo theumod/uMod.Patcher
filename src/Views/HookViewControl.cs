@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Oxide.Patcher.Common;
+using Oxide.Patcher.Common.TextHighlighting;
 
 namespace Oxide.Patcher.Views
 {
@@ -35,6 +36,8 @@ namespace Oxide.Patcher.Views
         private MethodDefinition _methodDef;
 
         private bool _loaded;
+
+        private HighlightGroup _msilHighlight;
 
         public HookViewControl()
         {
@@ -165,6 +168,7 @@ namespace Oxide.Patcher.Views
             Hook.PreparePatch(_methodDef, weaver);
 
             _msilBefore = new TextEditorControl { Dock = DockStyle.Fill, Text = weaver.ToString(), IsReadOnly = true };
+
             _codeBefore = new TextEditorControl
             {
                 Dock = DockStyle.Fill,
@@ -175,7 +179,9 @@ namespace Oxide.Patcher.Views
 
             Hook.ApplyPatch(_methodDef, weaver);
 
-            _msilAfter = new TextEditorControl { Dock = DockStyle.Fill, Text = weaver.ToString(), IsReadOnly = true };
+            string afterText = weaver.ToString();
+
+            _msilAfter = new TextEditorControl { Dock = DockStyle.Fill, Text = afterText, IsReadOnly = true };
             _codeAfter = new TextEditorControl
             {
                 Dock = DockStyle.Fill,
@@ -188,6 +194,30 @@ namespace Oxide.Patcher.Views
             aftertab.Controls.Add(_msilAfter);
             codebeforetab.Controls.Add(_codeBefore);
             codeaftertab.Controls.Add(_codeAfter);
+
+            _msilHighlight = new HighlightGroup(_msilAfter);
+
+            int searchIndex = afterText.IndexOf($"\"{Hook.HookName}\"");
+            if (searchIndex == -1)
+            {
+                return;
+            }
+
+            int startIndex = afterText.LastIndexOf("IL_", searchIndex);
+            if (startIndex == -1)
+            {
+                return;
+            }
+
+            int endIndex = afterText.IndexOf("\n", startIndex);
+            if (endIndex == -1)
+            {
+                return;
+            }
+
+            TextMarker marker = new TextMarker(startIndex, endIndex - startIndex, TextMarkerType.SolidBlock, Color.Yellow, Color.Black);
+
+            _msilHighlight.AddMarker(marker);
         }
 
         #endregion
