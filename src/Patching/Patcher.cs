@@ -344,7 +344,7 @@ namespace Oxide.Patcher.Patching
 
                     if (modifier.Signature.Exposure[0] != modifier.TargetExposure[0])
                     {
-                        ReplaceExposure(modifier, field);
+                        ReplaceExposure(modifier.TargetExposure[0], field);
                     }
 
                     switch (modifier.TargetExposure.Length)
@@ -375,7 +375,7 @@ namespace Oxide.Patcher.Patching
 
                     if (modifier.Signature.Exposure[0] != modifier.TargetExposure[0])
                     {
-                        ReplaceExposure(modifier, method);
+                        ReplaceExposure(modifier.TargetExposure[0], method);
                     }
 
                     switch (modifier.TargetExposure.Length)
@@ -411,14 +411,14 @@ namespace Oxide.Patcher.Patching
 
                     if (getMethod != null && modifier.Signature.Exposure[0] != modifier.TargetExposure[0])
                     {
-                        ReplaceExposure(modifier, getMethod);
+                        ReplaceExposure(modifier.TargetExposure[0], getMethod);
                     }
 
                     MethodDefinition setMethod = property.SetMethod;
 
                     if (setMethod != null && modifier.Signature.Exposure[1] != modifier.TargetExposure[1])
                     {
-                        ReplaceExposure(modifier, setMethod, 1);
+                        ReplaceExposure(modifier.TargetExposure[1], setMethod);
                     }
 
                     switch (modifier.TargetExposure.Length)
@@ -469,7 +469,7 @@ namespace Oxide.Patcher.Patching
 
                     if (modifier.Signature.Exposure[0] != modifier.TargetExposure[0])
                     {
-                        ReplaceExposure(modifier, typeDef);
+                        ReplaceExposure(modifier.TargetExposure[0], typeDef);
                     }
 
                     switch (modifier.TargetExposure.Length)
@@ -498,101 +498,63 @@ namespace Oxide.Patcher.Patching
             }
         }
 
-        private void ReplaceExposure(Modifier modifier, FieldDefinition field)
+        private void ReplaceExposure(Exposure targetExposure, FieldDefinition field)
         {
-            switch (modifier.Signature.Exposure[0])
+            switch (targetExposure)
             {
                 case Exposure.Private:
-                    field.Attributes -= FieldAttributes.Private;
+                    field.IsPrivate = true;
                     break;
 
                 case Exposure.Protected:
-                    field.Attributes -= FieldAttributes.Family;
+                    field.IsFamily = true;
                     break;
 
                 case Exposure.Public:
-                    field.Attributes -= FieldAttributes.Public;
+                    field.IsPublic = true;
                     break;
 
                 case Exposure.Internal:
-                    field.Attributes -= FieldAttributes.Assembly;
-                    break;
-            }
-
-            switch (modifier.TargetExposure[0])
-            {
-                case Exposure.Private:
-                    field.Attributes |= FieldAttributes.Private;
-                    break;
-
-                case Exposure.Protected:
-                    field.Attributes |= FieldAttributes.Family;
-                    break;
-
-                case Exposure.Public:
-                    field.Attributes |= FieldAttributes.Public;
-                    break;
-
-                case Exposure.Internal:
-                    field.Attributes |= FieldAttributes.Assembly;
+                    field.IsAssembly = true;
                     break;
             }
         }
 
-        private void ReplaceExposure(Modifier modifier, MethodDefinition method, int index = 0)
+        private static void ReplaceExposure(Exposure targetExposure, MethodDefinition method)
         {
-            switch (modifier.Signature.Exposure[index])
+            switch (targetExposure)
             {
                 case Exposure.Private:
-                    method.Attributes -= MethodAttributes.Private;
+                    method.IsPrivate = true;
                     break;
 
                 case Exposure.Protected:
-                    method.Attributes -= MethodAttributes.Family;
+                    method.IsFamily = true;
                     break;
 
                 case Exposure.Public:
-                    method.Attributes -= MethodAttributes.Public;
+                    method.IsPublic = true;
                     break;
 
                 case Exposure.Internal:
-                    method.Attributes -= MethodAttributes.Assembly;
-                    break;
-            }
-
-            switch (modifier.TargetExposure[index])
-            {
-                case Exposure.Private:
-                    method.Attributes |= MethodAttributes.Private;
-                    break;
-
-                case Exposure.Protected:
-                    method.Attributes |= MethodAttributes.Family;
-                    break;
-
-                case Exposure.Public:
-                    method.Attributes |= MethodAttributes.Public;
-                    break;
-
-                case Exposure.Internal:
-                    method.Attributes |= MethodAttributes.Assembly;
+                    method.IsAssembly = true;
                     break;
             }
         }
 
-        private void ReplaceExposure(Modifier modifier, TypeDefinition typeDefinition)
+        private static void ReplaceExposure(Exposure targetExposure, TypeDefinition typeDefinition)
         {
-            switch (modifier.Signature.Exposure[0])
+            switch (targetExposure)
             {
                 case Exposure.Private:
                 {
                     if (typeDefinition.IsNested)
                     {
-                        typeDefinition.Attributes -= TypeAttributes.NestedPrivate;
+                        typeDefinition.IsNestedPrivate = true;
                     }
                     else
                     {
-                        typeDefinition.Attributes -= TypeAttributes.NotPublic;
+                        typeDefinition.IsNotPublic = true;
                     }
 
                     break;
@@ -602,42 +564,11 @@ namespace Oxide.Patcher.Patching
                 {
                     if (typeDefinition.IsNested)
                     {
-                        typeDefinition.Attributes -= TypeAttributes.NestedPublic;
+                        typeDefinition.IsNestedPublic = true;
                     }
                     else
                     {
-                        typeDefinition.Attributes -= TypeAttributes.Public;
-                    }
-
-                    break;
-                }
-            }
-
-            switch (modifier.TargetExposure[0])
-            {
-                case Exposure.Private:
-                {
-                    if (typeDefinition.IsNested)
-                    {
-                        typeDefinition.Attributes |= TypeAttributes.NestedPrivate;
-                    }
-                    else
-                    {
-                        typeDefinition.Attributes |= TypeAttributes.NotPublic;
-                    }
-
-                    break;
-                }
-
-                case Exposure.Public:
-                {
-                    if (typeDefinition.IsNested)
-                    {
-                        typeDefinition.Attributes |= TypeAttributes.NestedPublic;
-                    }
-                    else
-                    {
-                        typeDefinition.Attributes |= TypeAttributes.Public;
+                        typeDefinition.IsPublic = true;
                     }
 
                     break;
