@@ -180,6 +180,11 @@ namespace Oxide.Patcher.Patching
                     {
                         ApplyModifier(modifier, assembly);
                     }
+
+                    if (manifest.AutoPublicModifiers)
+                    {
+                        ApplyAutoPublicModifiers(assembly);
+                    }
                 }
 
                 if (save)
@@ -498,7 +503,37 @@ namespace Oxide.Patcher.Patching
             }
         }
 
-        private void ReplaceExposure(Exposure targetExposure, FieldDefinition field)
+        private void ApplyAutoPublicModifiers(AssemblyDefinition assembly)
+        {
+            var allTypes = assembly.Modules.SelectMany(module => module.GetTypes());
+
+            foreach (var type in allTypes)
+            {
+                type.IsSealed = false;
+
+                ReplaceExposure(Exposure.Public, type);
+
+                foreach (var field in type.Fields)
+                {
+                    // We don't want to mess up serialization. So automatically we patch only non serialized fields.
+                    if (field.IsNotSerialized || field.HasConstant || field.IsLiteral || field.IsStatic)
+                        ReplaceExposure(Exposure.Public, field);
+                }
+
+                foreach (var method in type.Methods)
+                {
+                    // Most of the properties are already public. But if they're not - we don't want to mess up serialization.
+                    if (method.IsGetter || method.IsSetter)
+                        continue;
+
+                    ReplaceExposure(Exposure.Public, method);
+                }
+            }
+
+            Log($"Applied auto public modifier to assembly {assembly.Name}");
+        }
+
+        private static void ReplaceExposure(Exposure targetExposure, FieldDefinition field)
         {
             switch (targetExposure)
             {

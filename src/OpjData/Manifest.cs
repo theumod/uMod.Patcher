@@ -18,6 +18,11 @@ namespace Oxide.Patcher
         public string AssemblyName { get; set; }
 
         /// <summary>
+        /// When Enabled automatically tries to apply public modifiers to all members if it's considered to be safe.
+        /// </summary>
+        public bool AutoPublicModifiers { get; set; }
+
+        /// <summary>
         /// Gets or sets the hooks contained in this project
         /// </summary>
         [JsonConverter(typeof(HooksListConverter))]
