@@ -22,6 +22,7 @@ namespace Oxide.Patcher.Docs
         public string HookName { get; set; }
         public string HookDescription { get; set; }
         public Dictionary<string, string> HookParameters { get; set; }
+        public string ReturnType { get; set; }
         public ReturnBehavior ReturnBehavior { get; set; } = ReturnBehavior.Continue;
         public string TargetType { get; set; }
         public string Category { get; set; }
@@ -45,6 +46,7 @@ namespace Oxide.Patcher.Docs
                     Type = HookType.Simple;
                     ReturnBehavior = simpleHook.ReturnBehavior;
                     HookParameters = GetHookArguments(simpleHook, methodDef);
+                    ReturnType = GetReturnType(simpleHook, methodDef);
                     break;
 
                 case Modify modifyHook:
@@ -163,6 +165,42 @@ namespace Oxide.Patcher.Docs
             }
 
             return hookArguments;
+        }
+
+        private string GetReturnType(Simple hook, MethodDefinition method)
+        {
+            string returnType = "";
+            try
+            {
+                switch (hook?.ReturnBehavior)
+                {
+                    case ReturnBehavior.Continue:
+                        returnType = "void";
+                        break;
+
+                    case ReturnBehavior.ExitWhenNonNull:
+                        if (hook?.Signature.ReturnType == "System.Void") returnType = "object";
+                        else returnType = Utility.TransformType(hook?.Signature.ReturnType);
+                        break;
+
+                    case ReturnBehavior.ExitWhenValidType:
+                        if (hook?.Signature.ReturnType == "System.Void") returnType = "object";
+                        else returnType = Utility.TransformType(hook?.Signature.ReturnType);
+                        break;
+
+                    case ReturnBehavior.ModifyRefArg:
+                        if (hook?.Signature.ReturnType == "System.Void") returnType = "object";
+                        else returnType = Utility.TransformType(hook?.Signature.ReturnType);  
+                        break;
+
+                    case ReturnBehavior.UseArgumentString:
+                        string[] args = Utility.ParseArgumentString(hook.ArgumentString, out string returnValue);
+                        returnType = Utility.TransformType(GetArgStringType(returnValue, method, out string argName));
+                        break;
+                }                
+            } catch { returnType = "ERROR"; }
+
+            return returnType;
         }
 
         //Doesn't work if I use the Decompiler class so just do this for now
