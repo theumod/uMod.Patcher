@@ -110,6 +110,7 @@
             this.filenametextbox.Name = "filenametextbox";
             this.filenametextbox.Size = new System.Drawing.Size(314, 20);
             this.filenametextbox.TabIndex = 7;
+            this.filenametextbox.TextChanged += new System.EventHandler(this.filenametextbox_TextChanged);
             // 
             // directorylabel
             // 
@@ -141,6 +142,7 @@
             this.nametextbox.Size = new System.Drawing.Size(347, 20);
             this.nametextbox.TabIndex = 3;
             this.nametextbox.Text = "Untitled Oxide Project";
+            this.nametextbox.TextChanged += new System.EventHandler(this.nametextbox_TextChanged);
             // 
             // selectdirectorybutton
             // 
@@ -160,6 +162,7 @@
             this.directorytextbox.Name = "directorytextbox";
             this.directorytextbox.Size = new System.Drawing.Size(314, 20);
             this.directorytextbox.TabIndex = 5;
+            this.directorytextbox.TextChanged += new System.EventHandler(this.directorytextbox_TextChanged);
             // 
             // createbutton
             // 

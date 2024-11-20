@@ -7,9 +7,15 @@ namespace Oxide.Patcher
 {
     public partial class NewProjectForm : Form
     {
+        private bool _textBoxNameReady = false, _textBoxDirectoryReady = false, _textBoxFileReady = false;
+
         public NewProjectForm()
         {
             InitializeComponent();
+            _textBoxNameReady = !string.IsNullOrWhiteSpace(nametextbox.Text);
+            _textBoxDirectoryReady = !string.IsNullOrWhiteSpace(directorytextbox.Text);
+            _textBoxFileReady = !string.IsNullOrWhiteSpace(filenametextbox.Text);
+            ToggleCreateButton();
         }
 
         private void NewProjectForm_Load(object sender, EventArgs e)
@@ -28,12 +34,9 @@ namespace Oxide.Patcher
             DialogResult result = selectdirectorydialog.ShowDialog(this);
             if (result == DialogResult.OK)
             {
-                if (!Directory.EnumerateFiles(selectdirectorydialog.SelectedPath).Any(x => x.EndsWith(".dll") || x.EndsWith(".exe")))
+                if (CheckTargetDirectory(selectdirectorydialog.SelectedPath))
                 {
-                    if (MessageBox.Show(this, "The specified directory does not contain any dll files. Continue anyway?", "Oxide Patcher", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                    {
-                        return;
-                    }
+                    return;
                 }
 
                 //PatcherForm owner = Owner as PatcherForm;
@@ -69,21 +72,26 @@ namespace Oxide.Patcher
         private void createbutton_Click(object sender, EventArgs e)
         {
             // Verify
+            if (!filenametextbox.Text.EndsWith(".opj"))
+            {
+                filenametextbox.Text += ".opj";
+            }
+
             if (!Directory.Exists(directorytextbox.Text))
             {
-                MessageBox.Show(this, "The target directory is invalid.", "Oxide Patcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $"The target directory does not exist!\n{directorytextbox.Text}", "Oxide Patcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if (!Directory.Exists(Path.GetDirectoryName(filenametextbox.Text)))
+            if (CheckTargetDirectory(directorytextbox.Text))
             {
-                MessageBox.Show(this, "The filename is invalid.", "Oxide Patcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if (nametextbox.TextLength == 0)
+            string fileDir = Path.GetDirectoryName(filenametextbox.Text);
+            if (!Directory.Exists(fileDir))
             {
-                MessageBox.Show(this, "The project name is invalid.", "Oxide Patcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $"The project directory does not exist!\n{fileDir}", "Oxide Patcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -99,6 +107,38 @@ namespace Oxide.Patcher
 
             // Close
             Close();
+        }
+
+        private void nametextbox_TextChanged(object sender, EventArgs e)
+        {
+            _textBoxNameReady = !string.IsNullOrWhiteSpace(nametextbox.Text);
+            ToggleCreateButton();
+        }
+
+        private void directorytextbox_TextChanged(object sender, EventArgs e)
+        {
+            _textBoxDirectoryReady = !string.IsNullOrWhiteSpace(directorytextbox.Text);
+            ToggleCreateButton();
+        }
+
+        private void filenametextbox_TextChanged(object sender, EventArgs e)
+        {
+            _textBoxFileReady = !string.IsNullOrWhiteSpace(filenametextbox.Text);
+            ToggleCreateButton();
+        }
+
+        // Toggle Create Button
+        private void ToggleCreateButton() => createbutton.Enabled = _textBoxNameReady && _textBoxDirectoryReady && _textBoxFileReady;
+
+        // Checking the target directory for libraries
+        private bool CheckTargetDirectory(string path)
+        {
+            if (!Directory.EnumerateFiles(path).Any(x => x.EndsWith(".dll") || x.EndsWith(".exe")) &&
+                MessageBox.Show(this, "The specified directory does not contain any dll files. Continue anyway?", "Oxide Patcher", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
