@@ -75,16 +75,14 @@ namespace Oxide.Patcher
         public PatcherForm()
         {
             InitializeComponent();
-            string title = string.Format(Text, version);
-            Text = title.Slice(0, title.LastIndexOf("."));
+            UpdateWindowTitle();
             MainForm = this;
         }
 
         public PatcherForm(string filename)
         {
             InitializeComponent();
-            string title = string.Format(Text, version);
-            Text = title.Slice(0, title.LastIndexOf("."));
+            UpdateWindowTitle();
             if (File.Exists(filename))
             {
                 CurrentProjectFilename = filename;
@@ -841,7 +839,130 @@ namespace Oxide.Patcher
             }
         }
 
+        private void tabview_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                // Store clicked tab
+                TabControl tabControl = (TabControl)sender;
+                int hoverIndex = getHoverTabIndex(tabControl);
+                if (hoverIndex >= 0)
+                {
+                    tabControl.Tag = tabControl.TabPages[hoverIndex];
+                }
+            }
+        }
+
+        private void tabview_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                // Clear stored tab
+                TabControl tabControl = (TabControl)sender;
+                tabControl.Tag = null;
+            }
+        }
+
+        private void tabview_MouseMove(object sender, MouseEventArgs e)
+        {
+            TabControl tabControl = (TabControl)sender;
+            if (e.Button == MouseButtons.Left && tabControl.Tag != null)
+            {
+                // Start drag and drop
+                TabPage clickedTab = (TabPage)tabControl.Tag;
+                tabControl.DoDragDrop(clickedTab, DragDropEffects.All);
+            }
+        }
+
+        private void tabview_DragOver(object sender, DragEventArgs e)
+        {
+            TabControl tabControl = (TabControl)sender;
+
+            // A tab is draged?
+            if (e.Data.GetData(typeof(TabPage)) == null)
+            {
+                return;
+            }
+            TabPage dragTab = (TabPage)e.Data.GetData(typeof(TabPage));
+            int dragIndex = tabControl.TabPages.IndexOf(dragTab);
+
+            // Hover over a tab?
+            int hoverIndex = getHoverTabIndex(tabControl);
+            if (hoverIndex < 0)
+            {
+                e.Effect = DragDropEffects.None;
+                return;
+            }
+            TabPage hoverTab = tabControl.TabPages[hoverIndex];
+            e.Effect = DragDropEffects.Move;
+
+            // Start of drag?
+            if (dragTab == hoverTab)
+            {
+                return;
+            }
+
+            // Swap dragTab & hoverTab - avoids toggeling
+            Rectangle dragTabRect = tabControl.GetTabRect(dragIndex);
+            Rectangle hoverTabRect = tabControl.GetTabRect(hoverIndex);
+
+            if (dragTabRect.Width < hoverTabRect.Width)
+            {
+                Point tcLocation = tabControl.PointToScreen(tabControl.Location);
+
+                if (dragIndex < hoverIndex)
+                {
+                    if ((e.X - tcLocation.X) > (hoverTabRect.X + hoverTabRect.Width - dragTabRect.Width))
+                    {
+                        swapTabPages(tabControl, dragTab, hoverTab);
+                    }
+                }
+                else if (dragIndex > hoverIndex)
+                {
+                    if ((e.X - tcLocation.X) < (hoverTabRect.X + dragTabRect.Width))
+                    {
+                        swapTabPages(tabControl, dragTab, hoverTab);
+                    }
+                }
+            }
+            else
+            {
+                swapTabPages(tabControl, dragTab, hoverTab);
+            }
+
+            // Select new pos of dragTab
+            tabControl.SelectedIndex = tabControl.TabPages.IndexOf(dragTab);
+        }
+
+        private int getHoverTabIndex(TabControl tabControl)
+        {
+            for (int i = 0; i < tabControl.TabPages.Count; i++)
+            {
+                if (tabControl.GetTabRect(i).Contains(tabControl.PointToClient(Cursor.Position)))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private void swapTabPages(TabControl tabControl, TabPage src, TabPage dst)
+        {
+            int srcIndex = tabControl.TabPages.IndexOf(src);
+            int dstIndex = tabControl.TabPages.IndexOf(dst);
+            tabControl.TabPages[dstIndex] = src;
+            tabControl.TabPages[srcIndex] = dst;
+            tabControl.Refresh();
+        }
+
         #endregion Tab View Handlers
+
+        public void UpdateWindowTitle()
+        {
+            string versionStr = version.ToString();
+            versionStr = versionStr.Slice(0, versionStr.LastIndexOf("."));
+            Text = CurrentProject == null ? $"Oxide Patcher - Version {versionStr}" : $"{CurrentProject.Name} - Oxide Patcher({versionStr})";
+        }
 
         public void SetDocsButtonEnabled(bool enabled)
         {
@@ -1510,6 +1631,9 @@ namespace Oxide.Patcher
             mruManager.AddOrUpdate(fileName);
 
             Settings.LastProjectDirectory = fileName;
+
+            // Updating the window title
+            UpdateWindowTitle();
         }
 
         /// <summary>
@@ -1886,16 +2010,21 @@ namespace Oxide.Patcher
             //Update open hook tab
             foreach (TabPage tabPage in tabview.TabPages)
             {
-                if (!(tabPage.Tag is HookViewControl control) || control.Hook != hook)
+                if (!(tabPage.Tag is HookViewControl control))
                 {
                     continue;
                 }
 
-                tabPage.Text = hook.Name;
-
-                control.UnflagButton.Enabled = hook.Flagged;
-                control.FlagButton.Enabled = !hook.Flagged;
-                break;
+                if (control.Hook == hook)
+                {
+                    tabPage.Text = hook.Name;
+                    control.FlagCheck.Checked = hook.Flagged;
+                }
+                else if (hook == control.Hook.BaseHook)
+                {
+                    //Updating the parent hook button text for a child hook
+                    control.SetBaseHookButtonText(hook.Name);
+                }
             }
 
             TreeNode hooks = objectview.Nodes["Hooks"];

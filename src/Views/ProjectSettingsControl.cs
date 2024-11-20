@@ -47,6 +47,9 @@ namespace Oxide.Patcher
             ProjectObject.Name = nametextbox.Text;
             ProjectObject.TargetDirectory = directorytextbox.Text;
             ProjectObject.Save(ProjectFilename);
+
+            // Updating the window title
+            PatcherForm.MainForm.UpdateWindowTitle();
         }
     }
 }

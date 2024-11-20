@@ -61,9 +61,9 @@ namespace Oxide.Patcher
                 {
                     Console.WriteLine("Failed to locate Oxide.Core.dll!");
                 }
-                else
+                else if (MessageBox.Show("Failed to locate Oxide.Core.dll!\nOpen the instruction page?", "Oxide Patcher", MessageBoxButtons.YesNo, MessageBoxIcon.Error) == DialogResult.Yes)
                 {
-                    MessageBox.Show("Failed to locate Oxide.Core.dll!", "Oxide Patcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    System.Diagnostics.Process.Start("https://github.com/OxideMod/Oxide.Patcher?tab=readme-ov-file#patching-games");
                 }
 
                 Environment.Exit(0);
