@@ -27,9 +27,7 @@ namespace Oxide.Patcher.Views
         /// </summary>
         public PatcherForm MainForm { get; set; }
 
-        public Button FlagButton { get; set; }
-
-        public Button UnflagButton { get; set; }
+        public CheckBox FlagCheck { get; set; }
 
         private TextEditorControl _msilBefore, _msilAfter, _codeBefore, _codeAfter;
 
@@ -42,8 +40,7 @@ namespace Oxide.Patcher.Views
         public HookViewControl()
         {
             InitializeComponent();
-            FlagButton = flagbutton;
-            UnflagButton = unflagbutton;
+            FlagCheck = flagCheckBox;
         }
 
         protected override async void OnLoad(EventArgs e)
@@ -52,35 +49,7 @@ namespace Oxide.Patcher.Views
 
             _methodDef = MainForm.AssemblyLoader.GetMethod(Hook.AssemblyName, Hook.TypeName, Hook.Signature);
 
-            InitialiseDropdowns();
-
-            assemblytextbox.Text = Hook.AssemblyName;
-            typenametextbox.Text = Hook.TypeName;
-
-            methodnametextbox.Text = _methodDef != null ? Hook.Signature.ToString() : $"{Hook.Signature} (METHOD MISSING)";
-
-            nametextbox.Text = Hook.Name;
-            hooknametextbox.Text = Hook.HookName;
-            hookdescriptiontextbox.Text = Hook.HookDescription;
-
-            applybutton.Enabled = false;
-
-            flagbutton.Enabled = !Hook.Flagged;
-            unflagbutton.Enabled = Hook.Flagged;
-
-            clonebutton.Enabled = Hook.ChildHook == null;
-
-            LoadSettings();
-
-            await LoadCodeViews();
-
-            _loaded = true;
-        }
-
-        #region -Loading-
-
-        private void InitialiseDropdowns()
-        {
+            //Hook Types
             for (int i = 0; i < Hook.HookTypes.Length; i++)
             {
                 string typeName = Hook.HookTypes[i].GetCustomAttribute<HookType>().Name;
@@ -93,28 +62,36 @@ namespace Oxide.Patcher.Views
                 }
             }
 
-            List<Hook> hooks = MainForm.CurrentProject.GetManifest(Hook.AssemblyName).Hooks;
-
-            List<Hook> baseHooks = (from hook in hooks where hook.BaseHook != null select hook.BaseHook).ToList();
-
-            //Add 'None' option
-            basehookdropdown.Items.Add(string.Empty);
-
-            foreach (Hook hook in hooks)
+            //Base Hook
+            if (Hook.BaseHook != null)
             {
-                if (hook != Hook.BaseHook && baseHooks.Contains(hook))
-                {
-                    continue;
-                }
-
-                basehookdropdown.Items.Add(hook.Name);
-
-                if (hook == Hook.BaseHook)
-                {
-                    basehookdropdown.SelectedIndex = basehookdropdown.Items.Count - 1;
-                }
+                SetBaseHookButtonText(Hook.BaseHookName);
+                baseHookBtn.Enabled = true;
             }
+
+            assemblytextbox.Text = Hook.AssemblyName;
+            typenametextbox.Text = Hook.TypeName;
+
+            methodnametextbox.Text = _methodDef != null ? Hook.Signature.ToString() : $"{Hook.Signature} (METHOD MISSING)";
+
+            nametextbox.Text = Hook.Name;
+            hooknametextbox.Text = Hook.HookName;
+            hookdescriptiontextbox.Text = Hook.HookDescription;
+
+            applybutton.Enabled = false;
+
+            flagCheckBox.Checked = Hook.Flagged;
+
+            clonebutton.Enabled = Hook.ChildHook == null;
+
+            LoadSettings();
+
+            await LoadCodeViews();
+
+            _loaded = true;
         }
+
+        #region -Loading-
 
         private void LoadSettings()
         {
@@ -243,27 +220,6 @@ namespace Oxide.Patcher.Views
             }
         }
 
-        private void flagbutton_Click(object sender, EventArgs e)
-        {
-            Hook.Flagged = true;
-            MainForm.UpdateHook(Hook);
-            flagbutton.Enabled = false;
-            unflagbutton.Enabled = true;
-        }
-
-        private void unflagbutton_Click(object sender, EventArgs e)
-        {
-            Hook.Flagged = false;
-            MainForm.UpdateHook(Hook);
-            if (Hook.Flagged)
-            {
-                return;
-            }
-
-            flagbutton.Enabled = true;
-            unflagbutton.Enabled = false;
-        }
-
         private void hooktypedropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!_loaded || hooktypedropdown.SelectedIndex < 0)
@@ -300,6 +256,12 @@ namespace Oxide.Patcher.Views
                 MainForm.AddHook(newHook);
                 MainForm.GotoHook(newHook);
             }
+        }
+
+        private void baseHookBtn_Click(object sender, EventArgs e)
+        {
+            if (Hook.BaseHook != null)
+                MainForm.GotoHook(Hook.BaseHook);
         }
 
         private void nametextbox_TextChanged(object sender, EventArgs e)
@@ -351,38 +313,6 @@ namespace Oxide.Patcher.Views
             applybutton.Enabled = false;
         }
 
-        private void basehookdropdown_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (basehookdropdown.SelectedIndex < 0)
-            {
-                return;
-            }
-
-            string hookName = (string)basehookdropdown.SelectedItem;
-            if (string.IsNullOrWhiteSpace(hookName))
-            {
-                Hook.BaseHook = null;
-                return;
-            }
-
-            List<Hook> hooks = MainForm.CurrentProject.GetManifest(Hook.AssemblyName).Hooks;
-            foreach (Hook hook in hooks)
-            {
-                if (!hook.Name.Equals(hookName))
-                {
-                    continue;
-                }
-
-                Hook.BaseHook = hook;
-                break;
-            }
-
-            if (!Hook.BaseHook.Name.Equals(hookName))
-            {
-                MessageBox.Show(MainForm, "Base Hook not found!", "Oxide Patcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void clonebutton_Click(object sender, EventArgs e)
         {
             if (Hook.ChildHook != null)
@@ -411,6 +341,16 @@ namespace Oxide.Patcher.Views
             clonebutton.Enabled = false;
         }
 
+        private void checkBoxFlag_CheckedChanged(object sender, EventArgs e)
+        {
+            Hook.Flagged = flagCheckBox.Checked;
+            MainForm.UpdateHook(Hook);
+            if (Hook.Flagged != flagCheckBox.Checked)
+            {
+                flagCheckBox.Checked = Hook.Flagged;
+            }
+        }
+
         private string GetLastCloneName(Hook hook)
         {
             Hook currentHook = hook;
@@ -422,6 +362,8 @@ namespace Oxide.Patcher.Views
 
             return currentHook.Name;
         }
+
+        public void SetBaseHookButtonText(string text = "") => baseHookBtn.Text = text;
 
         #endregion
     }

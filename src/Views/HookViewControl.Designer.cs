@@ -38,12 +38,6 @@ namespace Oxide.Patcher.Views
             this.assemblylabel = new System.Windows.Forms.Label();
             this.methodnamelabel = new System.Windows.Forms.Label();
             this.methodnametextbox = new System.Windows.Forms.TextBox();
-            this.buttonholder = new System.Windows.Forms.FlowLayoutPanel();
-            this.flagbutton = new System.Windows.Forms.Button();
-            this.unflagbutton = new System.Windows.Forms.Button();
-            this.applybutton = new System.Windows.Forms.Button();
-            this.deletebutton = new System.Windows.Forms.Button();
-            this.clonebutton = new System.Windows.Forms.Button();
             this.namelabel = new System.Windows.Forms.Label();
             this.nametextbox = new System.Windows.Forms.TextBox();
             this.hooknamelabel = new System.Windows.Forms.Label();
@@ -51,7 +45,12 @@ namespace Oxide.Patcher.Views
             this.basehooklabel = new System.Windows.Forms.Label();
             this.hooknametextbox = new System.Windows.Forms.TextBox();
             this.hooktypedropdown = new System.Windows.Forms.ComboBox();
-            this.basehookdropdown = new System.Windows.Forms.ComboBox();
+            this.buttonholder = new System.Windows.Forms.FlowLayoutPanel();
+            this.applybutton = new System.Windows.Forms.Button();
+            this.deletebutton = new System.Windows.Forms.Button();
+            this.clonebutton = new System.Windows.Forms.Button();
+            this.flagCheckBox = new System.Windows.Forms.CheckBox();
+            this.baseHookBtn = new System.Windows.Forms.Button();
             this.tabview = new System.Windows.Forms.TabControl();
             this.hooksettingstab = new System.Windows.Forms.TabPage();
             this.beforetab = new System.Windows.Forms.TabPage();
@@ -88,7 +87,6 @@ namespace Oxide.Patcher.Views
             this.detailstable.Controls.Add(this.assemblylabel, 0, 0);
             this.detailstable.Controls.Add(this.methodnamelabel, 0, 2);
             this.detailstable.Controls.Add(this.methodnametextbox, 1, 2);
-            this.detailstable.Controls.Add(this.buttonholder, 0, 8);
             this.detailstable.Controls.Add(this.namelabel, 0, 3);
             this.detailstable.Controls.Add(this.nametextbox, 1, 3);
             this.detailstable.Controls.Add(this.hooknamelabel, 0, 4);
@@ -96,7 +94,8 @@ namespace Oxide.Patcher.Views
             this.detailstable.Controls.Add(this.basehooklabel, 0, 7);
             this.detailstable.Controls.Add(this.hooknametextbox, 1, 4);
             this.detailstable.Controls.Add(this.hooktypedropdown, 1, 6);
-            this.detailstable.Controls.Add(this.basehookdropdown, 1, 7);
+            this.detailstable.Controls.Add(this.buttonholder, 0, 8);
+            this.detailstable.Controls.Add(this.baseHookBtn, 1, 7);
             this.detailstable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.detailstable.Location = new System.Drawing.Point(3, 16);
             this.detailstable.Name = "detailstable";
@@ -197,69 +196,6 @@ namespace Oxide.Patcher.Views
             this.methodnametextbox.TabIndex = 0;
             this.methodnametextbox.TabStop = false;
             // 
-            // buttonholder
-            // 
-            this.detailstable.SetColumnSpan(this.buttonholder, 2);
-            this.buttonholder.Controls.Add(this.flagbutton);
-            this.buttonholder.Controls.Add(this.unflagbutton);
-            this.buttonholder.Controls.Add(this.applybutton);
-            this.buttonholder.Controls.Add(this.deletebutton);
-            this.buttonholder.Controls.Add(this.clonebutton);
-            this.buttonholder.Location = new System.Drawing.Point(3, 246);
-            this.buttonholder.Name = "buttonholder";
-            this.buttonholder.Size = new System.Drawing.Size(611, 30);
-            this.buttonholder.TabIndex = 5;
-            // 
-            // flagbutton
-            // 
-            this.flagbutton.Location = new System.Drawing.Point(3, 3);
-            this.flagbutton.Name = "flagbutton";
-            this.flagbutton.Size = new System.Drawing.Size(55, 23);
-            this.flagbutton.TabIndex = 6;
-            this.flagbutton.Text = "Flag";
-            this.flagbutton.UseVisualStyleBackColor = true;
-            this.flagbutton.Click += new System.EventHandler(this.flagbutton_Click);
-            // 
-            // unflagbutton
-            // 
-            this.unflagbutton.Location = new System.Drawing.Point(64, 3);
-            this.unflagbutton.Name = "unflagbutton";
-            this.unflagbutton.Size = new System.Drawing.Size(62, 23);
-            this.unflagbutton.TabIndex = 7;
-            this.unflagbutton.Text = "Unflag";
-            this.unflagbutton.UseVisualStyleBackColor = true;
-            this.unflagbutton.Click += new System.EventHandler(this.unflagbutton_Click);
-            // 
-            // applybutton
-            // 
-            this.applybutton.Location = new System.Drawing.Point(132, 3);
-            this.applybutton.Name = "applybutton";
-            this.applybutton.Size = new System.Drawing.Size(96, 23);
-            this.applybutton.TabIndex = 8;
-            this.applybutton.Text = "Apply Changes";
-            this.applybutton.UseVisualStyleBackColor = true;
-            this.applybutton.Click += new System.EventHandler(this.applybutton_Click);
-            // 
-            // deletebutton
-            // 
-            this.deletebutton.Location = new System.Drawing.Point(234, 3);
-            this.deletebutton.Name = "deletebutton";
-            this.deletebutton.Size = new System.Drawing.Size(87, 23);
-            this.deletebutton.TabIndex = 9;
-            this.deletebutton.Text = "Remove";
-            this.deletebutton.UseVisualStyleBackColor = true;
-            this.deletebutton.Click += new System.EventHandler(this.deletebutton_Click);
-            // 
-            // clonebutton
-            // 
-            this.clonebutton.Location = new System.Drawing.Point(327, 3);
-            this.clonebutton.Name = "clonebutton";
-            this.clonebutton.Size = new System.Drawing.Size(75, 23);
-            this.clonebutton.TabIndex = 10;
-            this.clonebutton.Text = "Clone";
-            this.clonebutton.UseVisualStyleBackColor = true;
-            this.clonebutton.Click += new System.EventHandler(this.clonebutton_Click);
-            // 
             // namelabel
             // 
             this.namelabel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -305,7 +241,7 @@ namespace Oxide.Patcher.Views
             this.basehooklabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.basehooklabel.Location = new System.Drawing.Point(3, 216);
             this.basehooklabel.Name = "basehooklabel";
-            this.basehooklabel.Size = new System.Drawing.Size(126, 27);
+            this.basehooklabel.Size = new System.Drawing.Size(126, 29);
             this.basehooklabel.TabIndex = 9;
             this.basehooklabel.Text = "Base Hook:";
             this.basehooklabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -330,16 +266,75 @@ namespace Oxide.Patcher.Views
             this.hooktypedropdown.TabIndex = 4;
             this.hooktypedropdown.SelectedIndexChanged += new System.EventHandler(this.hooktypedropdown_SelectedIndexChanged);
             // 
-            // basehookdropdown
+            // buttonholder
             // 
-            this.basehookdropdown.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.basehookdropdown.Enabled = false;
-            this.basehookdropdown.FormattingEnabled = true;
-            this.basehookdropdown.Location = new System.Drawing.Point(135, 219);
-            this.basehookdropdown.Name = "basehookdropdown";
-            this.basehookdropdown.Size = new System.Drawing.Size(479, 21);
-            this.basehookdropdown.TabIndex = 5;
-            this.basehookdropdown.SelectedIndexChanged += new System.EventHandler(this.basehookdropdown_SelectedIndexChanged);
+            this.detailstable.SetColumnSpan(this.buttonholder, 2);
+            this.buttonholder.Controls.Add(this.applybutton);
+            this.buttonholder.Controls.Add(this.deletebutton);
+            this.buttonholder.Controls.Add(this.clonebutton);
+            this.buttonholder.Controls.Add(this.flagCheckBox);
+            this.buttonholder.Location = new System.Drawing.Point(3, 248);
+            this.buttonholder.Name = "buttonholder";
+            this.buttonholder.Size = new System.Drawing.Size(611, 30);
+            this.buttonholder.TabIndex = 5;
+            // 
+            // applybutton
+            // 
+            this.applybutton.Location = new System.Drawing.Point(3, 3);
+            this.applybutton.Name = "applybutton";
+            this.applybutton.Size = new System.Drawing.Size(96, 23);
+            this.applybutton.TabIndex = 8;
+            this.applybutton.Text = "Apply Changes";
+            this.applybutton.UseVisualStyleBackColor = true;
+            this.applybutton.Click += new System.EventHandler(this.applybutton_Click);
+            // 
+            // deletebutton
+            // 
+            this.deletebutton.Location = new System.Drawing.Point(105, 3);
+            this.deletebutton.Name = "deletebutton";
+            this.deletebutton.Size = new System.Drawing.Size(87, 23);
+            this.deletebutton.TabIndex = 9;
+            this.deletebutton.Text = "Remove";
+            this.deletebutton.UseVisualStyleBackColor = true;
+            this.deletebutton.Click += new System.EventHandler(this.deletebutton_Click);
+            // 
+            // clonebutton
+            // 
+            this.clonebutton.Location = new System.Drawing.Point(198, 3);
+            this.clonebutton.Name = "clonebutton";
+            this.clonebutton.Size = new System.Drawing.Size(75, 23);
+            this.clonebutton.TabIndex = 10;
+            this.clonebutton.Text = "Clone";
+            this.clonebutton.UseVisualStyleBackColor = true;
+            this.clonebutton.Click += new System.EventHandler(this.clonebutton_Click);
+            // 
+            // checkBoxFlag
+            // 
+            this.flagCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.flagCheckBox.AutoSize = true;
+            this.flagCheckBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.flagCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.flagCheckBox.Location = new System.Drawing.Point(279, 3);
+            this.flagCheckBox.Name = "checkBoxFlag";
+            this.flagCheckBox.Size = new System.Drawing.Size(100, 23);
+            this.flagCheckBox.TabIndex = 11;
+            this.flagCheckBox.Text = "Ignore in patch:";
+            this.flagCheckBox.UseVisualStyleBackColor = true;
+            this.flagCheckBox.CheckedChanged += new System.EventHandler(this.checkBoxFlag_CheckedChanged);
+            // 
+            // baseHookBtn
+            // 
+            this.baseHookBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.baseHookBtn.Enabled = false;
+            this.baseHookBtn.Location = new System.Drawing.Point(135, 219);
+            this.baseHookBtn.Name = "baseHookBtn";
+            this.baseHookBtn.Size = new System.Drawing.Size(479, 23);
+            this.baseHookBtn.TabIndex = 12;
+            this.baseHookBtn.Text = "This hook does not have a parent hook.";
+            this.baseHookBtn.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.baseHookBtn.UseVisualStyleBackColor = true;
+            this.baseHookBtn.Click += new System.EventHandler(this.baseHookBtn_Click);
             // 
             // tabview
             // 
@@ -418,8 +413,10 @@ namespace Oxide.Patcher.Views
             this.detailstable.ResumeLayout(false);
             this.detailstable.PerformLayout();
             this.buttonholder.ResumeLayout(false);
+            this.buttonholder.PerformLayout();
             this.tabview.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -439,9 +436,6 @@ namespace Oxide.Patcher.Views
         private System.Windows.Forms.Label basehooklabel;
         private System.Windows.Forms.TextBox hooknametextbox;
         private System.Windows.Forms.ComboBox hooktypedropdown;
-        private System.Windows.Forms.ComboBox basehookdropdown;
-        private System.Windows.Forms.Button flagbutton;
-        private System.Windows.Forms.Button unflagbutton;
         private System.Windows.Forms.Button applybutton;
         private System.Windows.Forms.TabControl tabview;
         private System.Windows.Forms.TabPage hooksettingstab;
@@ -454,5 +448,7 @@ namespace Oxide.Patcher.Views
         private System.Windows.Forms.TabPage codeaftertab;
         private System.Windows.Forms.TabPage codebeforetab;
         private System.Windows.Forms.Button clonebutton;
+        private System.Windows.Forms.CheckBox flagCheckBox;
+        private System.Windows.Forms.Button baseHookBtn;
     }
 }
